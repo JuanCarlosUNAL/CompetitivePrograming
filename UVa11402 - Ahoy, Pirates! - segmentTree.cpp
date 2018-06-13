@@ -1,6 +1,6 @@
-#include <string>
-#include <cstdlib>
-#include <cstdio>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define max (nodo->b - nodo->a)
 
@@ -26,20 +26,20 @@ int pairOfLines = 0;
 
 int amountSet = 0;
 int numberQueries = 0;
-string finalString;
-string auxString;
+char finalString[1024000];
+char auxString[100];
 
 struct Node
 {
     int a, b,
         counter = 0;
     OP operation = NINGUNA;
-    Node *l, *r;
+    Node *l = NULL, *r = NULL;
 };
 
-Node *root;
+Node *root = NULL;
 
-void buildTree();
+void buildTree(int);
 Node *recursiveBuild(int, int);
 void recursiveClear(Node *);
 void clearTree();
@@ -53,32 +53,30 @@ int query(Node *, int, int);
 
 int main()
 {
-
-    cin >> testCases;
+    scanf("%i", &testCases);
     int currentCase = 0;
     while (testCases--)
     {
-        cout << "Case "<< ++currentCase << ':'<< endl;
-        finalString.clear();
-        finalString.reserve(102400);
-        cin >> pairOfLines;
-        while (pairOfLines--)
-        {
-            cin >> amountSet;
-            cin >> auxString;
+        ++currentCase;
+        printf("Case %i:\n", currentCase);
+        strcpy(finalString, "");
+        
+        scanf("%i", &pairOfLines);
+        for(;pairOfLines > 0; pairOfLines--){
+            scanf("%i\n%s", &amountSet, auxString);
             for (int i = 0; i < amountSet; i++)
-                finalString.append(auxString);
+                strcat(finalString, auxString);
         }
-        clearTree();
-        buildTree();
-        cin >> numberQueries;
 
+        //clearTree();
+        buildTree( strlen(finalString) );
+        scanf("%i\n", &numberQueries);
         int currentGodsQuery = 0;
         while (numberQueries--)
         {
             char type;
             int a, b;
-            cin >> type >> a >> b;
+            scanf("%c %i %i\n", &type, &a, &b);
             b += 1;
             switch (type)
             {
@@ -92,7 +90,9 @@ int main()
                 traverseTree(a, b, root, INVERT);
                 break;
             case 'S':
-                cout <<'Q' << ++currentGodsQuery << ": " << query(root, a, b) << endl;
+                int ans = query(root, a, b);
+                currentGodsQuery++;
+                printf("Q%i: %i\n", currentGodsQuery, ans);
                 break;
             }
         }
@@ -164,6 +164,7 @@ void lazyOperation(Node *nodo, OP op)
         return;
     if (nodo->operation != NINGUNA)
         executeOperation(nodo);
+        
     nodo->operation = op;
 }
 
@@ -200,18 +201,18 @@ void recursiveClear(Node *nodo)
         return;
     recursiveClear(nodo->l);
     recursiveClear(nodo->r);
-    delete nodo;
+    free(nodo);
 }
 
-void buildTree()
+void buildTree(int size)
 {
-    root = recursiveBuild(0, finalString.size());
+    root = recursiveBuild(0, size);
     return;
 }
 
 Node *recursiveBuild(int a, int b)
 {
-    Node *ans = new Node;
+    Node *ans = (Node*) malloc(sizeof(Node));
     ans->a = a;
     ans->b = b;
     if (b - a <= 1)
