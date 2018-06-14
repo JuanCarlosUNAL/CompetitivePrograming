@@ -60,16 +60,21 @@ int main()
         ++currentCase;
         printf("Case %i:\n", currentCase);
         strcpy(finalString, "");
-        
+
         scanf("%i", &pairOfLines);
-        for(;pairOfLines > 0; pairOfLines--){
+        int len = 0;
+        for (; pairOfLines > 0; pairOfLines--)
+        {
             scanf("%i\n%s", &amountSet, auxString);
+            len += strlen(auxString) * amountSet;
             for (int i = 0; i < amountSet; i++)
+            {
                 strcat(finalString, auxString);
+            }
         }
 
         //clearTree();
-        buildTree( strlen(finalString) );
+        buildTree(len);
         scanf("%i\n", &numberQueries);
         int currentGodsQuery = 0;
         while (numberQueries--)
@@ -104,11 +109,14 @@ int main()
 
 int query(Node *nodo, int a, int b)
 {
+    POSITION p = getPosition(a, b, nodo);
+    if(p == OUT) return 0;
+
     if (nodo->operation != NINGUNA)
         executeOperation(nodo);
 
     int sum = 0;
-    switch (getPosition(a, b, nodo))
+    switch (p)
     {
     case IN:
         sum = nodo->counter;
@@ -162,9 +170,11 @@ void lazyOperation(Node *nodo, OP op)
 {
     if (nodo == NULL || op == NINGUNA)
         return;
-    if (nodo->operation != NINGUNA)
+    
+    // if (nodo->operation != NINGUNA)
+    if (op == INVERT && nodo->operation != NINGUNA)
         executeOperation(nodo);
-        
+
     nodo->operation = op;
 }
 
@@ -212,7 +222,7 @@ void buildTree(int size)
 
 Node *recursiveBuild(int a, int b)
 {
-    Node *ans = (Node*) malloc(sizeof(Node));
+    Node *ans = (Node *)malloc(sizeof(Node));
     ans->a = a;
     ans->b = b;
     if (b - a <= 1)
