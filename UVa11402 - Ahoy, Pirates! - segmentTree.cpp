@@ -110,7 +110,8 @@ int main()
 int query(Node *nodo, int a, int b)
 {
     POSITION p = getPosition(a, b, nodo);
-    if(p == OUT) return 0;
+    if (p == OUT)
+        return 0;
 
     if (nodo->operation != NINGUNA)
         executeOperation(nodo);
@@ -170,11 +171,24 @@ void lazyOperation(Node *nodo, OP op)
 {
     if (nodo == NULL || op == NINGUNA)
         return;
-    
-    // if (nodo->operation != NINGUNA)
-    if (op == INVERT && nodo->operation != NINGUNA)
-        executeOperation(nodo);
 
+    if (op == INVERT && nodo->operation != NINGUNA)
+    {
+
+        switch (nodo->operation)
+        {
+        case INVERT:
+            nodo->operation = NINGUNA;
+            break;
+        case TO_ONES:
+            nodo->operation = TO_ZEROS;
+            break;
+        case TO_ZEROS:
+            nodo->operation = TO_ONES;
+            break;
+        }
+        return;
+    }
     nodo->operation = op;
 }
 
