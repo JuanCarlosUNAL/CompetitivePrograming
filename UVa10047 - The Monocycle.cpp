@@ -2,6 +2,8 @@
 #include <vector>
 #include <sstream>
 #include <map>
+#include <set>
+#include <queue>
 
 #define north 0x0
 #define east 0x1
@@ -10,9 +12,7 @@
 
 using namespace std;
 
-
-
-map<int, int> bfs(char** , const int, const int);
+map<int, int> bfs(vector<char> &, const int, const int);
 
 int main()
 {
@@ -27,7 +27,7 @@ int main()
     if (!m)
       break;
 
-    char grid[m][n];
+    vector<char> grid(m * n);
     for (int i = 0; i < m; i++)
     {
       getline(cin, line, '\n');
@@ -36,14 +36,14 @@ int main()
         switch(c) {
           case 'S': 
             init_state = (j << 5) | i;
-            grid[i][j] = '.';
+            grid[i * n + j] = '.';
             break;
           case 'T': 
             final_state = (j << 5) | i;
-            grid[i][j] = '.';
+            grid[i * n + j] = '.';
             break;
           default:
-            grid[i][j] = c;
+            grid[i * n + j] = c;
         }
         j++;
       }
@@ -57,13 +57,34 @@ int main()
     for (int i = 0; i < m; i++)
     {
       for (int j = 0; j < n; j++)
-        cout << grid[i][j];
+        cout << grid[i * n + j];
       cout << endl;
     }
   }
   return 0;
 }
 
-// map<int, int> bfs(const char** grid,const int init_state, const int final_state){
+vector<int> generate_states(vector<char> &grid, const int state) {
+  vector<int> next_states;
+  // Giros
+  if( (state >> 10) != right) next_states.push_back( (right << 10) | )
+}
 
-// }
+map<int, int> bfs(vector<char> &grid,const int init_state, const int final_state){
+  set<int> visited;
+  map<int, int> parents;
+  map<int, int> distances;
+  queue<int> q;
+  q.push(init_state);
+  distances[init_state] = 0;
+
+  while(!q.empty()) {
+    int curr_state = q.front(); q.pop();
+    visited.insert(curr_state);
+    int curr_distance = distances[curr_state];
+
+    for(int next_state : generate_states(grid, curr_state)) {
+
+    }
+  }
+}
