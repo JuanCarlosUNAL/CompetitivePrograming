@@ -56,18 +56,24 @@ int main()
       }
     }
 
-    init_state |= (south << 10);
+    init_state |= (east << 10);
 
+    cout << "---------------------------------" << endl;
     cout << "---------------------------------" << endl;
     map<int, int> parents = bfs(grid, init_state, final_state);
 
-    cout << "init: " << (0x1F & init_state) << ", " << (0x1F & (init_state >> 5)) << endl;
-    cout << "final: " << (0x1F & final_state) << ", " << (0x1F & (final_state >> 5)) << endl;
+    cout << "init: " << (0x1F & init_state) << ", " << (0x1F & (init_state >> 5)) << " -> " << bitset<12>(init_state) << endl;
+    cout << "final: " << (0x1F & final_state) << ", " << (0x1F & (final_state >> 5)) << " -> " << bitset<12>(final_state) << endl;
     for (int i = 0; i < m; i++)
     {
       for (int j = 0; j < n; j++)
         cout << grid[i * n + j];
       cout << endl;
+    }
+    cout << "---------------parrents------------------" << endl;
+    for (auto p : parents)
+    {
+      cout << bitset<12>(p.first) << ": " << bitset<12>(p.second) << endl;
     }
   }
   return 0;
@@ -93,25 +99,25 @@ vector<int> generate_states(vector<char> grid, const int state)
     next_states.push_back(east_state);
     next_states.push_back(west_state);
     if (allowed_cell(i - 1, j))
-      next_states.push_back((state | 0x1F) & (i - 1));
+      next_states.push_back((state & 0xFFFFFFE0) | (i - 1));
     break;
   case east:
     next_states.push_back(north_state);
     next_states.push_back(south_state);
     if (allowed_cell(i, j + 1))
-      next_states.push_back((state | 0x3E0) & ((j + 1) << 5));
+      next_states.push_back((state & 0xFFFFFC1F) | ((j + 1) << 5));
     break;
   case south:
     next_states.push_back(east_state);
     next_states.push_back(west_state);
     if (allowed_cell(i + 1, j))
-      next_states.push_back((state | 0x1F) & (i + 1));
+      next_states.push_back((state & 0xFFFFFFE0) | (i + 1));
     break;
   case west:
     next_states.push_back(north_state);
     next_states.push_back(south_state);
     if (allowed_cell(i, j - 1))
-      next_states.push_back((state | 0x3E0) & ((j - 1) << 5));
+      next_states.push_back((state & 0xFFFFFC1F) | ((j - 1) << 5));
     break;
   }
 
@@ -122,6 +128,7 @@ map<int, int> bfs(vector<char> grid, const int init_state, const int final_state
 {
   map<int, int> parents;
   map<int, int> distances;
+  set<int> visited;
   queue<int> q;
 
   q.push(init_state);
@@ -132,10 +139,24 @@ map<int, int> bfs(vector<char> grid, const int init_state, const int final_state
     int curr_state = q.front();
     q.pop();
     int curr_distance = distances[curr_state];
+    visited.insert(curr_state);
 
     for (int next_state : generate_states(grid, curr_state))
     {
-      cout << bitset<12>(next_state) << endl;
+      auto ref_old_distance = distances.find(next_state);
+      float old_distance = (ref_old_distance == distances.end() ? INFINITY : ref_old_distance->second);
+      float new_distance = curr_distance + 1;
+
+      if (visited.count(next_state) == 0)
+        q.push(next_state);
+
+      if (new_distance < old_distance)
+      {
+        if ((next_state & 0x3FF) ^ (curr_state & 0x3FF))
+          cout << bitset<10>(curr_state) << ", " << bitset<10>(next_state) << endl;
+        distances[next_state] = new_distance;
+        parents[next_state] = curr_state;
+      }
     }
   }
 
