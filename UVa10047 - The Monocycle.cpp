@@ -22,31 +22,13 @@ using namespace std;
 
 int m, n;
 
-map<int, int> bfs(vector<char>, const int, const int);
-vector<int> find_path(map<int, int>, const int, const int);
-
-string getDirectionName(int direction) {
-  switch(direction) {
-    case north: return "north";
-    case east: return "east";
-    case south: return "south";
-    default: return "west";
-  }
-}
-
-string getColorName(int color) {
-  switch(color) {
-    case green: return "green";
-    case black: return "black";
-    case red: return "red";
-    case blue: return "blue";
-    default: return "white";
-  }
-}
+map<int, int> bfs(vector<char> &, const int, const int);
+int find_distances(map<int, int> &, const int, const int);
 
 int main()
 {
   string line;
+  int num_test = 1;
   while (getline(cin, line, '\n'))
   {
     stringstream ss;
@@ -55,6 +37,8 @@ int main()
     ss >> m >> n;
     if (!m)
       break;
+    
+    if(num_test != 1) cout << endl << endl;
 
     vector<char> grid(m * n);
     for (int i = 0; i < m; i++)
@@ -80,26 +64,14 @@ int main()
       }
     }
 
-    cout << "---------------------------------" << endl;
-    cout << "---------------------------------" << endl;
-    map<int, int> parents = bfs(grid, init_state, final_state);
-    vector<int> path = find_path(parents, init_state, final_state);
+    map<int, int> distances = bfs(grid, init_state, final_state);
+    int min_distance = find_distances(distances, init_state, final_state);
 
-    cout << "init: " << (0x1F & init_state) << ", " << (0x1F & (init_state >> 5)) << " -> " << bitset<12>(init_state) << endl;
-    cout << "final: " << (0x1F & final_state) << ", " << (0x1F & (final_state >> 5)) << " -> " << bitset<12>(final_state) << endl;
-    for (int i = 0; i < m; i++)
-    {
-      for (int j = 0; j < n; j++)
-        cout << grid[i * n + j];
-      cout << endl;
-    }
-    cout << "---------------parents------------------" << endl;
-    for (auto p = path.rbegin(); p != path.rend(); p++)
-    // for (auto p : parents)
-    {
-      cout << ((*p >> 5) & 0x1F) << ", " << (*p & 0x1F) << ", " << getDirectionName((*p >> 10) & 0x3) << ", " << getColorName(*p >> 12) << endl;
-      // cout << "(" << (p.first & 0x1F) << ", " << ((p.first >> 5) & 0x1F) << "), (" << (p.second & 0x1F) << ", " << ((p.second >> 5) & 0x1F) << ")" << ", " << getDirectionName( ((p.second >> 10) & 0x3) ) << ", " << getColorName( ((p.second >> 12) & 0x7) ) << endl;
-    }
+    cout << "Case #" << num_test << endl;
+    if (min_distance != -1) 
+      cout << "minimum time = " << min_distance << " sec" ;
+    else cout << "destination not reachable" ;
+    num_test++;
   }
   return 0;
 }
@@ -157,7 +129,7 @@ vector<int> generate_states(vector<char> grid, const int state)
   return next_states;
 }
 
-map<int, int> bfs(vector<char> grid, const int init_state, const int final_state)
+map<int, int> bfs(vector<char> &grid, const int init_state, const int final_state)
 {
   map<int, int> parents;
   map<int, int> distances;
@@ -169,19 +141,18 @@ map<int, int> bfs(vector<char> grid, const int init_state, const int final_state
 
   while (!q.empty())
   {
-    int curr_state = q.front();
-    q.pop();
+    int curr_state = q.front(); q.pop();
     int curr_distance = distances[curr_state];
     visited.insert(curr_state);
 
     if ((final_state & 0x73FF) == (curr_state & 0x73FF))
-      return parents;
+      return distances;
 
     for (int next_state : generate_states(grid, curr_state))
     {
-      if (visited.count(next_state) != 0)
+      if (visited.count(next_state) != 0) 
         continue;
-
+        
       q.push(next_state);
       auto ref_old_distance = distances.find(next_state);
       float old_distance = (ref_old_distance == distances.end() ? INFINITY : ref_old_distance->second);
@@ -195,27 +166,19 @@ map<int, int> bfs(vector<char> grid, const int init_state, const int final_state
     }
   }
 
-  return parents;
+  return distances;
 }
 
-vector<int> find_path(map<int, int> parents, const int init_state, const int final_state)
+int find_distances(map<int, int> &distances, const int init_state, const int final_state)
 { 
-  vector<int> path;
-
   int direction = north;
-  auto ref_direction = parents.find(final_state | ( direction << 10));;
-  while (ref_direction == parents.end() && direction < 4)
-    ref_direction = parents.find(final_state | (++direction << 10));
-
-  cout << "final state: " << bitset<14>(ref_direction->first) << endl;
-  if(ref_direction == parents.end()) return path;
-
-  int curr_state = ref_direction->first;
-  path.push_back(curr_state);
-  while(curr_state != init_state){
-    curr_state = parents[curr_state];
-    path.push_back(curr_state);
+  int min_distance = INT8_MAX;
+  while (direction < 4) {
+    auto ref_direction = distances.find(final_state | (direction++ << 10));
+    if(ref_direction == distances.end()) continue;
+    min_distance = min(ref_direction->second, min_distance);
   }
-  
-  return path;
+
+  if(min_distance == INT8_MAX) return -1;
+  return min_distance;
 }
