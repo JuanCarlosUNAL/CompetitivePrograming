@@ -95,8 +95,10 @@ int main()
     }
     cout << "---------------parents------------------" << endl;
     for (auto p = path.rbegin(); p != path.rend(); p++)
+    // for (auto p : parents)
     {
       cout << ((*p >> 5) & 0x1F) << ", " << (*p & 0x1F) << ", " << getDirectionName((*p >> 10) & 0x3) << ", " << getColorName(*p >> 12) << endl;
+      // cout << "(" << (p.first & 0x1F) << ", " << ((p.first >> 5) & 0x1F) << "), (" << (p.second & 0x1F) << ", " << ((p.second >> 5) & 0x1F) << ")" << ", " << getDirectionName( ((p.second >> 10) & 0x3) ) << ", " << getColorName( ((p.second >> 12) & 0x7) ) << endl;
     }
   }
   return 0;
@@ -119,10 +121,10 @@ vector<int> generate_states(vector<char> grid, const int state)
   int curr_color = state >> 12;
   int next_color = ((curr_color + 1) % 5) << 12;
 
-  int north_state = (0x3FF & state) | (north << 10);
-  int south_state = (0x3FF & state) | (south << 10);
-  int east_state = (0x3FF & state) | (east << 10);
-  int west_state = (0x3FF & state) | (west << 10);
+  int north_state = (0x73FF & state) | (north << 10);
+  int south_state = (0x73FF & state) | (south << 10);
+  int east_state = (0x73FF & state) | (east << 10);
+  int west_state = (0x73FF & state) | (west << 10);
 
   switch (curr_direction)
   {
@@ -130,25 +132,25 @@ vector<int> generate_states(vector<char> grid, const int state)
     next_states.push_back(east_state);
     next_states.push_back(west_state);
     if (allowed_cell(i - 1, j, grid))
-      next_states.push_back((state & 0xFFFFCFE0) | (i - 1) | next_color);
+      next_states.push_back((state & 0xFFFF8FE0) | (i - 1) | next_color);
     break;
   case east:
     next_states.push_back(north_state);
     next_states.push_back(south_state);
     if (allowed_cell(i, j + 1, grid))
-      next_states.push_back((state & 0xFFFFCC1F) | ((j + 1) << 5) | next_color);
+      next_states.push_back((state & 0xFFFF8C1F) | ((j + 1) << 5) | next_color);
     break;
   case south:
     next_states.push_back(east_state);
     next_states.push_back(west_state);
     if (allowed_cell(i + 1, j, grid))
-      next_states.push_back((state & 0xFFFFCFE0) | (i + 1) | next_color);
+      next_states.push_back((state & 0xFFFF8FE0) | (i + 1) | next_color);
     break;
   case west:
     next_states.push_back(north_state);
     next_states.push_back(south_state);
     if (allowed_cell(i, j - 1, grid))
-      next_states.push_back((state & 0xFFFFCC1F) | ((j - 1) << 5) | next_color);
+      next_states.push_back((state & 0xFFFF8C1F) | ((j - 1) << 5) | next_color);
     break;
   }
 
@@ -172,7 +174,7 @@ map<int, int> bfs(vector<char> grid, const int init_state, const int final_state
     int curr_distance = distances[curr_state];
     visited.insert(curr_state);
 
-    if ((final_state & 0x33FF) == (curr_state & 0x33FF))
+    if ((final_state & 0x73FF) == (curr_state & 0x73FF))
       return parents;
 
     for (int next_state : generate_states(grid, curr_state))
@@ -205,6 +207,7 @@ vector<int> find_path(map<int, int> parents, const int init_state, const int fin
   while (ref_direction == parents.end() && direction < 4)
     ref_direction = parents.find(final_state | (++direction << 10));
 
+  cout << "final state: " << bitset<14>(ref_direction->first) << endl;
   if(ref_direction == parents.end()) return path;
 
   int curr_state = ref_direction->first;
