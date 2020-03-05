@@ -22,8 +22,7 @@ using namespace std;
 
 int m, n;
 
-map<int, int> bfs(vector<char> &, const int, const int);
-int find_distances(map<int, int> &, const int, const int);
+int bfs(vector<char> &, const int, const int);
 
 int main()
 {
@@ -64,12 +63,11 @@ int main()
       }
     }
 
-    map<int, int> distances = bfs(grid, init_state, final_state);
-    int min_distance = find_distances(distances, init_state, final_state);
+    int distance = bfs(grid, init_state, final_state);
 
     cout << "Case #" << num_test << endl;
-    if (min_distance != -1) 
-      cout << "minimum time = " << min_distance << " sec" ;
+    if (distance != -1) 
+      cout << "minimum time = " << distance << " sec" ;
     else cout << "destination not reachable" ;
     num_test++;
   }
@@ -129,7 +127,7 @@ vector<int> generate_states(vector<char> grid, const int state)
   return next_states;
 }
 
-map<int, int> bfs(vector<char> &grid, const int init_state, const int final_state)
+int bfs(vector<char> &grid, const int init_state, const int final_state)
 {
   map<int, int> parents;
   map<int, int> distances;
@@ -146,11 +144,11 @@ map<int, int> bfs(vector<char> &grid, const int init_state, const int final_stat
     visited.insert(curr_state);
 
     if ((final_state & 0x73FF) == (curr_state & 0x73FF))
-      return distances;
+      return curr_distance;
 
     for (int next_state : generate_states(grid, curr_state))
     {
-      if (visited.count(next_state) != 0) 
+      if (visited.count(next_state)) 
         continue;
         
       q.push(next_state);
@@ -160,25 +158,11 @@ map<int, int> bfs(vector<char> &grid, const int init_state, const int final_stat
 
       if (new_distance < old_distance)
       {
-        distances[next_state] = new_distance;
+        distances[next_state] = (int) new_distance;
         parents[next_state] = curr_state;
       }
     }
   }
 
-  return distances;
-}
-
-int find_distances(map<int, int> &distances, const int init_state, const int final_state)
-{ 
-  int direction = north;
-  int min_distance = INT8_MAX;
-  while (direction < 4) {
-    auto ref_direction = distances.find(final_state | (direction++ << 10));
-    if(ref_direction == distances.end()) continue;
-    min_distance = min(ref_direction->second, min_distance);
-  }
-
-  if(min_distance == INT8_MAX) return -1;
-  return min_distance;
+  return -1;
 }
