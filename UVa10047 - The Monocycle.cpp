@@ -37,7 +37,7 @@ int main()
     if (!m)
       break;
     
-    if(num_test != 1) cout << endl << endl;
+    if(num_test != 1) cout << endl;
 
     vector<char> grid(m * n);
     for (int i = 0; i < m; i++)
@@ -69,6 +69,7 @@ int main()
     if (distance != -1) 
       cout << "minimum time = " << distance << " sec" ;
     else cout << "destination not reachable" ;
+    cout << endl;
     num_test++;
   }
   return 0;
