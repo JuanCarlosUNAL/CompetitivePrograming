@@ -1,0 +1,90 @@
+---------------------------------
+---------------------------------
+final state: 00010010100001
+init: 2, 1 -> 000000100010
+final: 1, 5 -> 000010100001
+..#...
+#.....
+...#..
+.....#
+---------------parents------------------
+1, 2, north, green
+1, 1, north, black
+1, 1, east, black
+2, 1, east, red
+3, 1, east, blue
+4, 1, east, white
+5, 1, east, green
+---------------------------------
+---------------------------------
+final state: 00000000000000
+init: 0, 0 -> 000000000000
+final: 0, 2 -> 000001000000
+.#.
+---------------parents------------------
+---------------------------------
+---------------------------------
+final state: 00100100101001
+init: 0, 1 -> 000000100000
+final: 9, 9 -> 000100101001
+#........#
+#..#.##.##
+#.##.##.##
+.#....##.#
+##.##..#.#
+#..#.##...
+#......##.
+..##.##...
+#.###...#.
+#.....###.
+---------------parents------------------
+1, 0, north, green
+1, 0, east, green
+2, 0, east, black
+3, 0, east, red
+4, 0, east, blue
+4, 0, south, blue
+4, 1, south, white
+4, 2, south, green
+4, 3, south, black
+4, 3, west, black
+3, 3, west, red
+2, 3, west, blue
+2, 3, south, blue
+2, 4, south, white
+2, 5, south, green
+2, 6, south, black
+2, 6, east, black
+3, 6, east, red
+4, 6, east, blue
+5, 6, east, white
+6, 6, east, green
+6, 6, north, green
+6, 6, west, green
+5, 6, west, black
+4, 6, west, red
+3, 6, west, blue
+2, 6, west, white
+1, 6, west, green
+1, 6, south, green
+1, 7, south, black
+1, 8, south, red
+1, 9, south, blue
+1, 9, east, blue
+2, 9, east, white
+3, 9, east, green
+4, 9, east, black
+5, 9, east, red
+5, 9, north, red
+5, 8, north, blue
+5, 8, east, blue
+6, 8, east, white
+7, 8, east, green
+7, 8, north, green
+7, 7, north, black
+7, 7, east, black
+8, 7, east, red
+9, 7, east, blue
+9, 7, south, blue
+9, 8, south, white
+9, 9, south, green
